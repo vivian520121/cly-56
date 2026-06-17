@@ -94,32 +94,32 @@ export const ItemLibrary: React.FC = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 md:grid-cols-2 gap-2">
           {filteredItems.map((item) => {
             const IconComponent = iconMap[item.icon] || Box;
-            const previewSize = 40;
+            const previewSize = 32;
             return (
               <div
                 key={item.id}
                 draggable
                 onDragStart={(e) => handleDragStart(e, item)}
                 onTouchStart={(e) => handleTouchStart(e, item)}
-                className="bg-cream-50 rounded-xl p-3 cursor-grab active:cursor-grabbing hover:bg-cream-100 transition-all hover:shadow-soft active:scale-95 select-none touch-none"
+                className="bg-cream-50 rounded-xl p-2 md:p-3 cursor-grab active:cursor-grabbing hover:bg-cream-100 transition-all hover:shadow-soft active:scale-95 select-none touch-none"
               >
                 <div
-                  className="rounded-lg flex items-center justify-center mb-2 mx-auto"
+                  className="rounded-lg flex items-center justify-center mb-1 md:mb-2 mx-auto"
                   style={{
-                    width: Math.min(item.width * 20, previewSize),
-                    height: Math.min(item.height * 20, previewSize),
+                    width: Math.min(item.width * 16, previewSize),
+                    height: Math.min(item.height * 16, previewSize),
                     backgroundColor: item.color,
                   }}
                 >
-                  <IconComponent className="text-white/90" size={18} strokeWidth={1.5} />
+                  <IconComponent className="text-white/90" size={16} strokeWidth={1.5} />
                 </div>
                 <p className="text-xs text-center text-gray-700 font-medium truncate">
                   {item.name}
                 </p>
-                <p className="text-[10px] text-center text-gray-400 mt-0.5">
+                <p className="text-[10px] text-center text-gray-400 mt-0.5 hidden md:block">
                   {item.width}×{item.height}
                 </p>
               </div>

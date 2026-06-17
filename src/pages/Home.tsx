@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toolbar } from "@/components/Toolbar";
 import { ItemLibrary } from "@/components/ItemLibrary";
 import { Canvas } from "@/components/Canvas";
@@ -7,9 +7,16 @@ import { useAppStore } from "@/store/useAppStore";
 import { downloadLayoutImage } from "@/utils/exportImage";
 
 export default function Home() {
-  const { currentLayoutId, layouts } = useAppStore();
+  const { currentLayoutId, layouts, isDraggingNew } = useAppStore();
   const [showMobileLibrary, setShowMobileLibrary] = useState(false);
   const [showMobilePanel, setShowMobilePanel] = useState(false);
+
+  useEffect(() => {
+    if (isDraggingNew) {
+      setShowMobileLibrary(false);
+      setShowMobilePanel(false);
+    }
+  }, [isDraggingNew]);
 
   const currentLayout = layouts.find((l) => l.id === currentLayoutId);
   const layoutName = currentLayout?.name || "收纳布局";
@@ -65,7 +72,7 @@ export default function Home() {
       {showMobileLibrary && (
         <div className="md:hidden fixed inset-0 z-30 bg-black/30" onClick={() => setShowMobileLibrary(false)}>
           <div
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[70vh] overflow-hidden"
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[50vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-3 border-b border-cream-200 flex items-center justify-between">
@@ -77,7 +84,7 @@ export default function Home() {
                 <span className="text-gray-400">✕</span>
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[60vh]">
+            <div className="overflow-y-auto max-h-[calc(50vh-56px)]">
               <ItemLibrary />
             </div>
           </div>

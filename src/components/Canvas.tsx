@@ -355,9 +355,23 @@ export const Canvas: React.FC = () => {
     );
   };
 
+  const renderDragHint = () => {
+    if (!isDraggingNew || !dragPreview) return null;
+
+    return (
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 md:hidden">
+        <div className="bg-sage-500 text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium flex items-center gap-2">
+          <span>👆</span>
+          <span>松手放置 {dragPreview.name}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto relative">
       {renderWarningToast()}
+      {renderDragHint()}
       <div
         ref={canvasRef}
         id="layout-canvas"
