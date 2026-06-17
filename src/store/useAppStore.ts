@@ -19,6 +19,11 @@ interface AppState {
     x: number;
     y: number;
   } | null;
+  collisionWarning: {
+    show: boolean;
+    type: "collision" | "outOfBounds" | null;
+    message: string;
+  };
 
   setCanvasConfig: (config: Partial<CanvasConfig>) => void;
   addItem: (item: Omit<PlacedItem, "id">) => void;
@@ -30,6 +35,7 @@ interface AppState {
 
   setDragPreview: (preview: AppState["dragPreview"]) => void;
   setIsDraggingNew: (dragging: boolean) => void;
+  setCollisionWarning: (warning: AppState["collisionWarning"]) => void;
 
   saveCurrentLayout: (name: string) => void;
   loadLayout: (id: string) => void;
@@ -52,6 +58,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   currentLayoutId: null,
   isDraggingNew: false,
   dragPreview: null,
+  collisionWarning: {
+    show: false,
+    type: null,
+    message: "",
+  },
 
   setCanvasConfig: (config) =>
     set((state) => ({
@@ -85,7 +96,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setDragPreview: (preview) => set({ dragPreview: preview }),
 
-  setIsDraggingNew: (dragging) => set({ isDraggingNew: dragging }),
+  setIsDraggingNew: (dragging) =>
+    set({
+      isDraggingNew: dragging,
+      collisionWarning: dragging
+        ? get().collisionWarning
+        : { show: false, type: null, message: "" },
+    }),
+
+  setCollisionWarning: (warning) => set({ collisionWarning: warning }),
 
   saveCurrentLayout: (name) => {
     const state = get();

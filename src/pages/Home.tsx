@@ -19,7 +19,7 @@ export default function Home() {
     if (canvasElement) {
       try {
         await downloadLayoutImage(canvasElement, layoutName);
-      } catch (error) {
+      } catch {
         alert("导出失败，请重试");
       }
     }

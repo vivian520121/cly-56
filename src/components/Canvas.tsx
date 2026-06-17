@@ -17,6 +17,8 @@ export const Canvas: React.FC = () => {
     setDragPreview,
     isDraggingNew,
     setIsDraggingNew,
+    collisionWarning,
+    setCollisionWarning,
   } = useAppStore();
 
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
@@ -63,24 +65,40 @@ export const Canvas: React.FC = () => {
       y: pos.y - item.y * cellSize,
     });
     selectItem(itemId);
+    setCollisionWarning({ show: false, type: null, message: "" });
   };
 
   const handleMouseMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
       const pos = getMousePosition(e);
 
       if (draggingItemId) {
-        const newX = Math.max(0, Math.min(pos.x - dragOffset.x, (width - 1) * cellSize));
-        const newY = Math.max(0, Math.min(pos.y - dragOffset.y, (height - 1) * cellSize));
+        const newX = pos.x - dragOffset.x;
+        const newY = pos.y - dragOffset.y;
         const snapped = snapToGrid(newX, newY, cellSize);
 
         const item = items.find((i) => i.id === draggingItemId);
         if (item) {
           const testItem = { ...item, x: snapped.x, y: snapped.y };
           const collision = checkCollision(testItem, items, canvasConfig);
-          if (!collision.isOutOfBounds) {
-            setTempPosition(snapped);
+          
+          if (collision.isOutOfBounds) {
+            setCollisionWarning({
+              show: true,
+              type: "outOfBounds",
+              message: "物品超出网格范围",
+            });
+          } else if (collision.hasCollision && collision.collidingItemIds.length > 0) {
+            setCollisionWarning({
+              show: true,
+              type: "collision",
+              message: "与其他物品重叠",
+            });
+          } else {
+            setCollisionWarning({ show: false, type: null, message: "" });
           }
+          setTempPosition(snapped);
         }
       }
 
@@ -88,10 +106,40 @@ export const Canvas: React.FC = () => {
         const newX = pos.x - (dragPreview.width * cellSize) / 2;
         const newY = pos.y - (dragPreview.height * cellSize) / 2;
         const snapped = snapToGrid(newX, newY, cellSize);
+
+        const testItem: PlacedItem = {
+          id: "preview",
+          itemId: "preview",
+          x: snapped.x,
+          y: snapped.y,
+          width: dragPreview.width,
+          height: dragPreview.height,
+          name: dragPreview.name,
+          color: dragPreview.color,
+          icon: dragPreview.icon,
+        };
+        const collision = checkCollision(testItem, items, canvasConfig);
+
+        if (collision.isOutOfBounds) {
+          setCollisionWarning({
+            show: true,
+            type: "outOfBounds",
+            message: "物品超出网格范围",
+          });
+        } else if (collision.hasCollision) {
+          setCollisionWarning({
+            show: true,
+            type: "collision",
+            message: "与其他物品重叠",
+          });
+        } else {
+          setCollisionWarning({ show: false, type: null, message: "" });
+        }
+
         setDragPreview({ ...dragPreview, x: snapped.x, y: snapped.y });
       }
     },
-    [draggingItemId, dragOffset, isDraggingNew, dragPreview, items, canvasConfig, width, height, cellSize, getMousePosition, setDragPreview]
+    [draggingItemId, dragOffset, isDraggingNew, dragPreview, items, canvasConfig, cellSize, getMousePosition, setDragPreview, setCollisionWarning]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -137,13 +185,14 @@ export const Canvas: React.FC = () => {
 
     setDraggingItemId(null);
     setTempPosition(null);
-  }, [draggingItemId, tempPosition, isDraggingNew, dragPreview, items, canvasConfig, moveItem, addItem, setDragPreview, setIsDraggingNew]);
+    setCollisionWarning({ show: false, type: null, message: "" });
+  }, [draggingItemId, tempPosition, isDraggingNew, dragPreview, items, canvasConfig, moveItem, addItem, setDragPreview, setIsDraggingNew, setCollisionWarning]);
 
   useEffect(() => {
     if (draggingItemId || isDraggingNew) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
-      window.addEventListener("touchmove", handleMouseMove as EventListener);
+      window.addEventListener("touchmove", handleMouseMove as EventListener, { passive: false });
       window.addEventListener("touchend", handleMouseUp as EventListener);
     }
     return () => {
@@ -246,6 +295,7 @@ export const Canvas: React.FC = () => {
             cellSize={cellSize}
             isSelected={selectedItemId === item.id}
             hasCollision={isDragging && collision.hasCollision && collision.collidingItemIds.length > 0}
+            isOutOfBounds={isDragging && collision.isOutOfBounds}
           />
         </div>
       );
@@ -281,14 +331,33 @@ export const Canvas: React.FC = () => {
           item={testItem}
           cellSize={cellSize}
           isSelected={false}
-          hasCollision={collision.hasCollision || collision.isOutOfBounds}
+          hasCollision={collision.hasCollision && !collision.isOutOfBounds}
+          isOutOfBounds={collision.isOutOfBounds}
         />
       </div>
     );
   };
 
+  const renderWarningToast = () => {
+    if (!collisionWarning.show) return null;
+
+    const isCollision = collisionWarning.type === "collision";
+    const bgColor = isCollision ? "bg-red-500" : "bg-orange-500";
+    const icon = isCollision ? "⚠️" : "🚫";
+
+    return (
+      <div
+        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-bounce`}
+      >
+        <span className="text-xl">{icon}</span>
+        <span className="font-medium">{collisionWarning.message}</span>
+      </div>
+    );
+  };
+
   return (
-    <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto">
+    <div className="flex-1 flex items-center justify-center p-4 md:p-8 overflow-auto relative">
+      {renderWarningToast()}
       <div
         ref={canvasRef}
         id="layout-canvas"

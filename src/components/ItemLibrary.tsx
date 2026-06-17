@@ -4,7 +4,6 @@ import {
   BookOpen,
   Box,
   Smartphone,
-  Star,
   Circle,
   Tablet,
   Laptop,
@@ -25,15 +24,7 @@ const iconMap: Record<string, React.ElementType> = {
   laptop: Laptop,
   "battery-charging": BatteryCharging,
   headphones: Headphones,
-  star: Star,
   circle: Circle,
-};
-
-const categoryIcons: Record<ItemCategory, React.ElementType> = {
-  clothing: Shirt,
-  books: BookOpen,
-  misc: Box,
-  electronics: Smartphone,
 };
 
 export const ItemLibrary: React.FC = () => {
@@ -86,23 +77,20 @@ export const ItemLibrary: React.FC = () => {
       </div>
 
       <div className="flex flex-wrap gap-1 p-3 border-b border-cream-100">
-        {categories.map((cat) => {
-          const Icon = categoryIcons[cat as ItemCategory] || Star;
-          return (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all
-                ${activeCategory === cat
-                  ? "bg-sage-400 text-white"
-                  : "bg-cream-100 text-gray-600 hover:bg-cream-200"
-                }
-              `}
-            >
-              {cat === "all" ? "全部" : categoryLabels[cat as ItemCategory]}
-            </button>
-          );
-        })}
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all
+              ${activeCategory === cat
+                ? "bg-sage-400 text-white"
+                : "bg-cream-100 text-gray-600 hover:bg-cream-200"
+              }
+            `}
+          >
+            {cat === "all" ? "全部" : categoryLabels[cat as ItemCategory]}
+          </button>
+        ))}
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">

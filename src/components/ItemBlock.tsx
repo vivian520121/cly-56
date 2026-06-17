@@ -19,6 +19,7 @@ interface ItemBlockProps {
   cellSize: number;
   isSelected: boolean;
   hasCollision?: boolean;
+  isOutOfBounds?: boolean;
 }
 
 const iconMap: Record<string, React.ElementType> = {
@@ -39,6 +40,7 @@ export const ItemBlock: React.FC<ItemBlockProps> = ({
   cellSize,
   isSelected,
   hasCollision = false,
+  isOutOfBounds = false,
 }) => {
   const IconComponent = iconMap[item.icon] || Box;
   const selectItem = useAppStore((state) => state.selectItem);
@@ -53,6 +55,7 @@ export const ItemBlock: React.FC<ItemBlockProps> = ({
       className={`absolute rounded-lg shadow-soft flex flex-col items-center justify-center cursor-pointer transition-all duration-150 select-none
         ${isSelected ? "ring-2 ring-sage-400 ring-offset-2 z-10" : ""}
         ${hasCollision ? "ring-2 ring-red-400 animate-pulse" : ""}
+        ${isOutOfBounds ? "ring-2 ring-orange-400 animate-pulse" : ""}
       `}
       style={{
         left: item.x * cellSize,
@@ -61,6 +64,7 @@ export const ItemBlock: React.FC<ItemBlockProps> = ({
         height: item.height * cellSize - 4,
         margin: 2,
         backgroundColor: item.color,
+        opacity: isOutOfBounds ? 0.5 : 1,
       }}
       onClick={handleClick}
     >
