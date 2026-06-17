@@ -24,6 +24,10 @@ interface AppState {
     type: "collision" | "outOfBounds" | null;
     message: string;
   };
+  mobileUI: {
+    showLibrary: boolean;
+    showPanel: boolean;
+  };
 
   setCanvasConfig: (config: Partial<CanvasConfig>) => void;
   addItem: (item: Omit<PlacedItem, "id">) => void;
@@ -36,6 +40,7 @@ interface AppState {
   setDragPreview: (preview: AppState["dragPreview"]) => void;
   setIsDraggingNew: (dragging: boolean) => void;
   setCollisionWarning: (warning: AppState["collisionWarning"]) => void;
+  setMobileUI: (ui: Partial<AppState["mobileUI"]>) => void;
 
   saveCurrentLayout: (name: string) => void;
   loadLayout: (id: string) => void;
@@ -62,6 +67,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     show: false,
     type: null,
     message: "",
+  },
+  mobileUI: {
+    showLibrary: false,
+    showPanel: false,
   },
 
   setCanvasConfig: (config) =>
@@ -105,6 +114,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     }),
 
   setCollisionWarning: (warning) => set({ collisionWarning: warning }),
+
+  setMobileUI: (ui) =>
+    set((state) => ({
+      mobileUI: { ...state.mobileUI, ...ui },
+    })),
 
   saveCurrentLayout: (name) => {
     const state = get();

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Toolbar } from "@/components/Toolbar";
 import { ItemLibrary } from "@/components/ItemLibrary";
 import { Canvas } from "@/components/Canvas";
@@ -7,16 +6,11 @@ import { useAppStore } from "@/store/useAppStore";
 import { downloadLayoutImage } from "@/utils/exportImage";
 
 export default function Home() {
-  const { currentLayoutId, layouts, isDraggingNew } = useAppStore();
-  const [showMobileLibrary, setShowMobileLibrary] = useState(false);
-  const [showMobilePanel, setShowMobilePanel] = useState(false);
-
-  useEffect(() => {
-    if (isDraggingNew) {
-      setShowMobileLibrary(false);
-      setShowMobilePanel(false);
-    }
-  }, [isDraggingNew]);
+  const { currentLayoutId, layouts, mobileUI, setMobileUI } = useAppStore();
+  const showMobileLibrary = mobileUI.showLibrary;
+  const showMobilePanel = mobileUI.showPanel;
+  const setShowMobileLibrary = (v: boolean) => setMobileUI({ showLibrary: v });
+  const setShowMobilePanel = (v: boolean) => setMobileUI({ showPanel: v });
 
   const currentLayout = layouts.find((l) => l.id === currentLayoutId);
   const layoutName = currentLayout?.name || "收纳布局";

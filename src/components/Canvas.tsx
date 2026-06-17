@@ -19,6 +19,7 @@ export const Canvas: React.FC = () => {
     setIsDraggingNew,
     collisionWarning,
     setCollisionWarning,
+    setMobileUI,
   } = useAppStore();
 
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
@@ -194,6 +195,14 @@ export const Canvas: React.FC = () => {
       window.addEventListener("mouseup", handleMouseUp);
       window.addEventListener("touchmove", handleMouseMove as EventListener, { passive: false });
       window.addEventListener("touchend", handleMouseUp as EventListener);
+
+      if (isDraggingNew) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setMobileUI({ showLibrary: false, showPanel: false });
+          });
+        });
+      }
     }
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
@@ -201,7 +210,7 @@ export const Canvas: React.FC = () => {
       window.removeEventListener("touchmove", handleMouseMove as EventListener);
       window.removeEventListener("touchend", handleMouseUp as EventListener);
     };
-  }, [draggingItemId, isDraggingNew, handleMouseMove, handleMouseUp]);
+  }, [draggingItemId, isDraggingNew, handleMouseMove, handleMouseUp, setMobileUI]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
