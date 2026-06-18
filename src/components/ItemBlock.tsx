@@ -50,32 +50,59 @@ export const ItemBlock: React.FC<ItemBlockProps> = ({
     selectItem(item.id);
   };
 
+  const blockWidth = item.width * cellSize - 4;
+  const blockHeight = item.height * cellSize - 4;
+
+  const useHorizontalLayout = blockHeight < cellSize * 1.2;
+
+  const iconSize = useHorizontalLayout
+    ? Math.min(blockHeight * 0.55, 20)
+    : Math.min(blockHeight * 0.35, 24);
+
+  const fontSize = useHorizontalLayout
+    ? Math.max(9, Math.min(blockHeight * 0.35, 14))
+    : Math.max(9, Math.min(blockHeight * 0.2, 14));
+
+  const gapSize = useHorizontalLayout ? 4 : Math.max(2, blockHeight * 0.05);
+
   return (
     <div
-      className={`absolute rounded-lg shadow-soft flex flex-col items-center justify-center cursor-pointer transition-all duration-150 select-none
+      className={`absolute rounded-lg shadow-soft flex items-center justify-center cursor-pointer transition-all duration-150 select-none overflow-hidden
         ${isSelected ? "ring-2 ring-sage-400 ring-offset-2 z-10" : ""}
         ${hasCollision ? "ring-2 ring-red-400 animate-pulse" : ""}
         ${isOutOfBounds ? "ring-2 ring-orange-400 animate-pulse" : ""}
+        ${useHorizontalLayout ? "flex-row px-2" : "flex-col px-1"}
       `}
       style={{
         left: item.x * cellSize,
         top: item.y * cellSize,
-        width: item.width * cellSize - 4,
-        height: item.height * cellSize - 4,
+        width: blockWidth,
+        height: blockHeight,
         margin: 2,
         backgroundColor: item.color,
         opacity: isOutOfBounds ? 0.5 : 1,
+        gap: gapSize,
       }}
       onClick={handleClick}
     >
       <IconComponent
-        className="text-white/90 mb-1"
-        size={Math.min(cellSize * 0.5, 24)}
+        className="text-white/90 flex-shrink-0"
+        size={iconSize}
         strokeWidth={1.5}
       />
       <span
-        className="text-white text-xs font-medium truncate px-1 w-full text-center"
-        style={{ fontSize: Math.max(10, cellSize * 0.22) }}
+        className="text-white font-medium text-center leading-tight flex-shrink-0"
+        style={{
+          fontSize: fontSize,
+          maxWidth: useHorizontalLayout ? blockWidth - iconSize - gapSize - 16 : "100%",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: useHorizontalLayout ? "nowrap" : "normal",
+          display: "-webkit-box",
+          WebkitLineClamp: useHorizontalLayout ? 1 : 2,
+          WebkitBoxOrient: "vertical",
+          lineHeight: 1.1,
+        }}
       >
         {item.name}
       </span>
